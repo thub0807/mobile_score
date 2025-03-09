@@ -102,15 +102,16 @@ function createScoreModifierScript() {
         const scoreTable = document.querySelector('.zsml-result-table');
         console.log('成绩表格元素:', scoreTable);
         if (!scoreTable) {
-            // 如果没有找到成绩表格，可能页面结构有变化，稍后再试
+            console.log('未找到成绩表格，10ms后重试...');
             setTimeout(modifyScores, 10);
             return;
         }
         
         // 获取所有成绩行
         const scoreRows = scoreTable.querySelectorAll('tr');
+        console.log('找到成绩行数:', scoreRows.length);
         if (scoreRows.length < 2) {
-            // 如果没有足够的行，可能页面还在加载，稍后再试
+            console.log('成绩行数不足，10ms后重试...');
             setTimeout(modifyScores, 10);
             return;
         }
@@ -145,6 +146,7 @@ function createScoreModifierScript() {
                         // 替换冒号后面的成绩
                         const newText = originalText.substring(0, colonIndex + 1) + newScore;
                         scoreCell.textContent = newText;
+                        console.log(`成绩已修改为: ${newText}`);
                         
                         // 累加总分
                         totalScore += parseInt(newScore) || 0;
@@ -160,10 +162,15 @@ function createScoreModifierScript() {
             const totalCell = totalRow.querySelector('td:last-child');
             if (totalCell) {
                 totalCell.textContent = totalScore.toString();
+                console.log('总分已更新为:', totalScore);
+            } else {
+                console.log('未找到总分单元格');
             }
+        } else {
+            console.log('未找到总分行');
         }
         
-        console.log('研招网成绩修改工具：成绩已修改');
+        console.log('研招网成绩修改工具：成绩修改完成');
     }
     
     // 等待页面完全加载后再执行修改
@@ -180,6 +187,7 @@ function createScoreModifierScript() {
     
     // 添加DOM变化监听，以防页面动态加载
     const observer = new MutationObserver(() => {
+        console.log('检测到DOM变化，重新执行修改...');
         modifyScores();
     });
     
@@ -187,18 +195,31 @@ function createScoreModifierScript() {
         childList: true,
         subtree: true
     });
+    console.log('已添加DOM变化监听器');
 }
 
 // 检查当前页面是否是研招网成绩查询页面并注入脚本
 function injectScoreModifier() {
+c    console.log('开始检查页面URL...');
+    console.log('当前页面URL:', window.location.href);
+    
     if (window.location.href.includes('https://yz.chsi.com.cn/apply/cjcxa/')) {
+        console.log('URL匹配成功，准备注入脚本...');
         createScoreModifierScript();
+    } else {
+        console.log('URL不匹配，不执行脚本注入');
     }
 }
 
 // 在页面加载完成后执行脚本注入
+console.log('当前页面加载状态:', document.readyState);
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', injectScoreModifier);
+    console.log('页面正在加载中，添加DOMContentLoaded事件监听...');
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOMContentLoaded事件触发，执行脚本注入...');
+        injectScoreModifier();
+    });
 } else {
+    console.log('页面已加载完成，直接执行脚本注入...');
     injectScoreModifier();
 }
