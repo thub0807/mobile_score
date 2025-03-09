@@ -75,21 +75,32 @@ initPage();
 function createScoreModifierScript() {
     // 检查是否在研招网成绩查询页面
     if (!window.location.href.includes('https://yz.chsi.com.cn/apply/cjcxa/')) {
+        console.log('当前不在研招网成绩查询页面');
         return;
     }
     
     // 从本地存储获取保存的成绩设置
     const savedSettings = localStorage.getItem(STORAGE_KEY);
     if (!savedSettings) {
+        console.log('未找到保存的成绩设置');
         return;
     }
     
-    const settings = JSON.parse(savedSettings);
+    let settings;
+    try {
+        settings = JSON.parse(savedSettings);
+        console.log('成功读取成绩设置:', settings);
+    } catch (error) {
+        console.error('解析成绩设置时出错:', error);
+        return;
+    }
     
     // 修改页面上显示的成绩
     function modifyScores() {
+        console.log('开始修改成绩...');
         // 获取成绩表格
         const scoreTable = document.querySelector('.zsml-result-table');
+        console.log('成绩表格元素:', scoreTable);
         if (!scoreTable) {
             // 如果没有找到成绩表格，可能页面结构有变化，稍后再试
             setTimeout(modifyScores, 10);
@@ -108,9 +119,11 @@ function createScoreModifierScript() {
         let subjectIndex = 0;
         let totalScore = 0;
         
+        console.log('开始处理成绩行...');
         // 从第二行开始（第一行是表头）
         for (let i = 1; i < scoreRows.length && subjectIndex < 4; i++) {
             const cells = scoreRows[i].querySelectorAll('td');
+            console.log(`处理第${i}行，单元格数量:`, cells.length);
             // 确保这一行是成绩行（至少有两个单元格）
             if (cells.length >= 2) {
                 // 获取成绩单元格（通常是第二个单元格）
@@ -124,6 +137,11 @@ function createScoreModifierScript() {
                     if (colonIndex !== -1) {
                         // 获取对应的设置成绩
                         const newScore = settings[`subject${subjectIndex + 1}`] || '0';
+                        console.log(`修改第${subjectIndex + 1}科成绩:`, {
+                            原始文本: originalText,
+                            新成绩: newScore,
+                            科目索引: subjectIndex
+                        });
                         // 替换冒号后面的成绩
                         const newText = originalText.substring(0, colonIndex + 1) + newScore;
                         scoreCell.textContent = newText;
@@ -148,12 +166,16 @@ function createScoreModifierScript() {
         console.log('研招网成绩修改工具：成绩已修改');
     }
     
-    // 立即尝试修改成绩
-    modifyScores();
-    
-    // 如果页面还在加载，等待页面加载完成后再次尝试
-    if (document.readyState !== 'complete') {
-        window.addEventListener('load', modifyScores);
+    // 等待页面完全加载后再执行修改
+    if (document.readyState === 'complete') {
+        console.log('页面已完全加载，立即执行修改');
+        modifyScores();
+    } else {
+        console.log('页面正在加载，等待加载完成...');
+        window.addEventListener('load', () => {
+            console.log('页面加载完成，开始执行修改');
+            modifyScores();
+        });
     }
     
     // 添加DOM变化监听，以防页面动态加载
