@@ -92,7 +92,7 @@ function createScoreModifierScript() {
         const scoreTable = document.querySelector('.zsml-result-table');
         if (!scoreTable) {
             // 如果没有找到成绩表格，可能页面结构有变化，稍后再试
-            setTimeout(modifyScores, 500);
+            setTimeout(modifyScores, 10);
             return;
         }
         
@@ -100,7 +100,7 @@ function createScoreModifierScript() {
         const scoreRows = scoreTable.querySelectorAll('tr');
         if (scoreRows.length < 2) {
             // 如果没有足够的行，可能页面还在加载，稍后再试
-            setTimeout(modifyScores, 500);
+            setTimeout(modifyScores, 10);
             return;
         }
         
@@ -148,15 +148,35 @@ function createScoreModifierScript() {
         console.log('研招网成绩修改工具：成绩已修改');
     }
     
-    // 页面加载完成后修改成绩
-    if (document.readyState === 'complete') {
-        modifyScores();
-    } else {
+    // 立即尝试修改成绩
+    modifyScores();
+    
+    // 如果页面还在加载，等待页面加载完成后再次尝试
+    if (document.readyState !== 'complete') {
         window.addEventListener('load', modifyScores);
+    }
+    
+    // 添加DOM变化监听，以防页面动态加载
+    const observer = new MutationObserver(() => {
+        modifyScores();
+    });
+    
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+}
+
+// 检查当前页面是否是研招网成绩查询页面并注入脚本
+function injectScoreModifier() {
+    if (window.location.href.includes('https://yz.chsi.com.cn/apply/cjcxa/')) {
+        createScoreModifierScript();
     }
 }
 
-// 检查当前页面是否是研招网成绩查询页面
-if (window.location.href.includes('https://yz.chsi.com.cn/apply/cjcxa/')) {
-    createScoreModifierScript();
+// 在页面加载完成后执行脚本注入
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', injectScoreModifier);
+} else {
+    injectScoreModifier();
 }
