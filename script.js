@@ -200,7 +200,7 @@ function createScoreModifierScript() {
 
 // 检查当前页面是否是研招网成绩查询页面并注入脚本
 function injectScoreModifier() {
-c    console.log('开始检查页面URL...');
+    console.log('开始检查页面URL...');
     console.log('当前页面URL:', window.location.href);
     
     if (window.location.href.includes('https://yz.chsi.com.cn/apply/cjcxa/')) {
