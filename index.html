@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>研招网成绩修改工具</title>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>研招网成绩修改工具</h1>
+        <p class="description">此工具可以修改研招网成绩查询页面显示的成绩数据。请在下方输入您想要显示的成绩。</p>
+        
+        <div class="score-form">
+            <div class="form-group">
+                <label for="subject1">科目一成绩:</label>
+                <input type="number" id="subject1" min="0" max="150" placeholder="输入成绩">
+            </div>
+            <div class="form-group">
+                <label for="subject2">科目二成绩:</label>
+                <input type="number" id="subject2" min="0" max="150" placeholder="输入成绩">
+            </div>
+            <div class="form-group">
+                <label for="subject3">科目三成绩:</label>
+                <input type="number" id="subject3" min="0" max="150" placeholder="输入成绩">
+            </div>
+            <div class="form-group">
+                <label for="subject4">科目四成绩:</label>
+                <input type="number" id="subject4" min="0" max="150" placeholder="输入成绩">
+            </div>
+            
+            <div class="total-score">
+                <p>总分: <span id="totalScore">0</span></p>
+            </div>
+            
+            <div class="buttons">
+                <button id="saveBtn" class="btn primary">保存设置</button>
+                <button id="resetBtn" class="btn secondary">重置</button>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h2>使用说明</h2>
+            <ol>
+                <li>输入您想要显示的四门科目成绩</li>
+                <li>点击"保存设置"按钮保存您的设置</li>
+                <li>访问研招网成绩查询页面，您设置的成绩将自动显示</li>
+                <li>如需恢复原始成绩，请点击"重置"按钮</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script src="./script.js"></script>
+</body>
+</html>
