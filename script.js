@@ -203,8 +203,10 @@ function injectScoreModifier() {
     console.log('开始检查页面URL...');
     console.log('当前页面URL:', window.location.href);
     
-    if (window.location.href.includes('https://yz.chsi.com.cn/apply/cjcxa/') || 
-        window.location.href.includes('scorechanged.vercel.app')) {
+    // 修改URL匹配逻辑
+    if (window.location.href.includes('yz.chsi.com.cn') || 
+        window.location.href.includes('vercel.app') ||
+        window.location.href.includes('localhost')) {  // 添加本地开发支持
         console.log('URL匹配成功，准备注入脚本...');
         createScoreModifierScript();
     } else {
