@@ -54,7 +54,10 @@ function saveSettings() {
     };
     
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-    alert('设置已保存！访问研招网成绩查询页面时将显示您设置的成绩。');
+    alert('设置已保存！即将跳转到研招网成绩查询页面...');
+    
+    // 重定向到研招网成绩查询页面
+    window.location.href = 'https://yz.chsi.com.cn/apply/cjcxa/';
 }
 
 // 重置设置
