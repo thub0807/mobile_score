@@ -95,17 +95,24 @@ function modifyScores() {
     }
 
     // 获取成绩表格并修改成绩的函数
-    function updateScores() {
+    function updateScores(retryCount = 0) {
+        const MAX_RETRIES = 10;
+        const RETRY_INTERVAL = 1000;
+
         const tbody = document.querySelector('tbody');
-        if (!tbody) {
-            console.log('未找到成绩表格体，1秒后重试...');
-            setTimeout(updateScores, 1000);
+        if (!tbody && retryCount < MAX_RETRIES) {
+            console.log(`未找到成绩表格体，${RETRY_INTERVAL/1000}秒后进行第${retryCount + 1}次重试...`);
+            setTimeout(() => updateScores(retryCount + 1), RETRY_INTERVAL);
+            return;
+        } else if (!tbody) {
+            console.log('达到最大重试次数，无法找到成绩表格');
             return;
         }
 
         const rows = tbody.querySelectorAll('tr');
         let scoreIndex = 0;
         let foundFirstScore = false;
+        let modifiedCount = 0;
 
         rows.forEach((row, index) => {
             const titleCell = row.querySelector('td.cjxx-info-title');
@@ -124,6 +131,7 @@ function modifyScores() {
                 ].reduce((sum, score) => sum + Number(score), 0);
                 contentCell.textContent = totalScore.toString();
                 console.log('总分已更新为:', totalScore);
+                modifiedCount++;
             } else if (titleText.includes('第') && titleText.includes('门：')) {
                 if (!foundFirstScore) {
                     foundFirstScore = true;
@@ -133,12 +141,17 @@ function modifyScores() {
                 if (settings[scoreKey]) {
                     contentCell.textContent = settings[scoreKey];
                     console.log(`第${scoreIndex + 1}科成绩已更新为:`, settings[scoreKey]);
+                    modifiedCount++;
                 }
                 scoreIndex++;
             }
         });
 
-        console.log('成绩修改完成');
+        if (modifiedCount > 0) {
+            console.log(`成绩修改完成，共修改${modifiedCount}项`);
+        } else {
+            console.log('未能修改任何成绩，可能是页面结构不匹配');
+        }
     }
 
     // 开始尝试更新成绩
@@ -152,12 +165,24 @@ function checkAndModifyPage() {
 
     if (currentUrl.includes('yz.chsi.com.cn/apply/cjcxa/')) {
         console.log('检测到研招网成绩查询页面，准备修改成绩...');
-        // 确保页面完全加载后再执行修改
-        if (document.readyState === 'complete') {
-            modifyScores();
-        } else {
-            window.addEventListener('load', modifyScores);
-        }
+        // 使用MutationObserver监听DOM变化
+        const observer = new MutationObserver((mutations, obs) => {
+            const tbody = document.querySelector('tbody');
+            if (tbody) {
+                console.log('检测到成绩表格已加载，开始修改成绩...');
+                obs.disconnect(); // 停止观察
+                modifyScores();
+            }
+        });
+
+        // 开始观察DOM变化
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+
+        // 同时也执行一次初始检查
+        modifyScores();
     }
 }
 
