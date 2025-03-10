@@ -71,9 +71,9 @@ function resetSettings() {
 // 初始化页面
 initPage();
 
-// 创建用于修改研招网成绩页面的脚本
-function createScoreModifierScript() {
-    console.log('开始执行成绩修改脚本...');
+// 修改研招网成绩页面的主函数
+function modifyScores() {
+    console.log('开始修改成绩...');
     
     // 从本地存储获取保存的成绩设置
     const savedSettings = localStorage.getItem(STORAGE_KEY);
@@ -90,31 +90,21 @@ function createScoreModifierScript() {
         console.error('解析成绩设置时出错:', error);
         return;
     }
-    
-    // 修改页面上显示的成绩
-    function modifyScores() {
-        console.log('开始修改成绩...');
-        // 获取成绩表格
-    
 
-        console.log('尝试获取成绩表格...');
+    // 获取成绩表格并修改成绩的函数
+    function updateScores() {
         const tbody = document.querySelector('tbody');
-        console.log('成绩表格体:', tbody);
         if (!tbody) {
             console.log('未找到成绩表格体，1秒后重试...');
-            setTimeout(modifyScores, 1000);
+            setTimeout(updateScores, 1000);
             return;
         }
 
         const rows = tbody.querySelectorAll('tr');
         let scoreIndex = 0;
         let foundFirstScore = false;
-        let totalScore = 0;
 
-        console.log('找到成绩表格，开始遍历行...');
-        // 遍历tbody中的所有行
         rows.forEach((row, index) => {
-            console.log(`正在处理第${index + 1}行...`);
             const titleCell = row.querySelector('td.cjxx-info-title');
             const contentCell = row.querySelector('td.cjxx-info-content');
 
@@ -122,9 +112,8 @@ function createScoreModifierScript() {
 
             const titleText = titleCell.textContent.trim();
 
-            // 更新总分
             if (titleText === '总分：') {
-                totalScore = [
+                const totalScore = [
                     settings.subject1 || '0',
                     settings.subject2 || '0',
                     settings.subject3 || '0',
@@ -132,9 +121,7 @@ function createScoreModifierScript() {
                 ].reduce((sum, score) => sum + Number(score), 0);
                 contentCell.textContent = totalScore.toString();
                 console.log('总分已更新为:', totalScore);
-            }
-            // 更新各科成绩
-            else if (titleText.includes('第') && titleText.includes('门：')) {
+            } else if (titleText.includes('第') && titleText.includes('门：')) {
                 if (!foundFirstScore) {
                     foundFirstScore = true;
                 }
@@ -148,59 +135,38 @@ function createScoreModifierScript() {
             }
         });
 
-        console.log('研招网成绩修改工具：成绩修改完成');
+        console.log('成绩修改完成');
     }
-    
-    // 等待页面完全加载后再执行修改
-    if (document.readyState === 'complete') {
-        console.log('页面已完全加载，立即执行修改');
-        modifyScores();
-    } else {
-        console.log('页面正在加载，等待加载完成...');
-        window.addEventListener('load', () => {
-            console.log('页面加载完成，开始执行修改');
+
+    // 开始尝试更新成绩
+    updateScores();
+}
+
+// 检查当前页面是否是研招网成绩查询页面
+function checkAndModifyPage() {
+    const currentUrl = window.location.href;
+    console.log('检查页面URL:', currentUrl);
+
+    if (currentUrl.includes('yz.chsi.com.cn/apply/cjcxa/')) {
+        console.log('检测到研招网成绩查询页面，准备修改成绩...');
+        // 确保页面完全加载后再执行修改
+        if (document.readyState === 'complete') {
             modifyScores();
-        });
-    }
-    
-    // 添加DOM变化监听，以防页面动态加载
-    const observer = new MutationObserver(() => {
-        console.log('检测到DOM变化，重新执行修改...');
-        modifyScores();
-    });
-    
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
-    console.log('已添加DOM变化监听器');
-}
-
-// 检查当前页面是否是研招网成绩查询页面并注入脚本
-function injectScoreModifier() {
-    console.log('开始检查页面URL...');
-    console.log('当前页面URL:', window.location.href);
-    
-    // 修改URL匹配逻辑
-    if (window.location.href.includes('yz.chsi.com.cn') || 
-        window.location.href.includes('vercel.app') ||
-        window.location.href.includes('localhost')) {  // 添加本地开发支持
-        console.log('URL匹配成功，准备注入脚本...');
-        createScoreModifierScript();
-    } else {
-        console.log('URL不匹配，不执行脚本注入');
+        } else {
+            window.addEventListener('load', modifyScores);
+        }
     }
 }
 
-// 在页面加载完成后执行脚本注入
-console.log('当前页面加载状态:', document.readyState);
-if (document.readyState === 'loading') {
-    console.log('页面正在加载中，添加DOMContentLoaded事件监听...');
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('DOMContentLoaded事件触发，执行脚本注入...');
-        injectScoreModifier();
-    });
-} else {
-    console.log('页面已加载完成，直接执行脚本注入...');
-    injectScoreModifier();
-}
+// 监听URL变化
+let lastUrl = window.location.href;
+setInterval(() => {
+    const currentUrl = window.location.href;
+    if (currentUrl !== lastUrl) {
+        lastUrl = currentUrl;
+        checkAndModifyPage();
+    }
+}, 1000);
+
+// 初始检查
+checkAndModifyPage();
