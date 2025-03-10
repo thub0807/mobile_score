@@ -57,7 +57,26 @@ function saveSettings() {
     alert('设置已保存！即将跳转到研招网成绩查询页面...');
     
     // 重定向到代理服务器的研招网成绩查询页面
-    window.location.href = '/proxy/yz/apply/cjcxa/';
+    try {
+        const proxyUrl = '/proxy/yz/apply/cjcxa/';
+        fetch(proxyUrl, { method: 'HEAD' })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = proxyUrl;
+                } else {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+            })
+            .catch(error => {
+                console.error('代理服务器访问失败:', error);
+                alert('抱歉，代理服务器暂时无法访问。请稍后再试，或直接访问研招网官方网站。');
+                window.location.href = 'https://yz.chsi.com.cn/apply/cjcxa/';
+            });
+    } catch (error) {
+        console.error('重定向过程出错:', error);
+        alert('重定向过程出错，将跳转到研招网官方网站。');
+        window.location.href = 'https://yz.chsi.com.cn/apply/cjcxa/';
+    }
 }
 
 // 重置设置
