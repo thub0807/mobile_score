@@ -73,11 +73,7 @@ initPage();
 
 // 创建用于修改研招网成绩页面的脚本
 function createScoreModifierScript() {
-    // 检查是否在研招网成绩查询页面
-    if (!window.location.href.includes('https://yz.chsi.com.cn/apply/cjcxa/')) {
-        console.log('当前不在研招网成绩查询页面');
-        return;
-    }
+    
     
     // 从本地存储获取保存的成绩设置
     const savedSettings = localStorage.getItem(STORAGE_KEY);
