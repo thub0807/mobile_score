@@ -6,6 +6,17 @@
     { "src": "*.js", "use": "@vercel/static" }
   ],
   "routes": [
+    {
+      "src": "/proxy/yz/(.*)",
+      "dest": "https://yz.chsi.com.cn/$1",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Accept",
+        "Referer": "https://yz.chsi.com.cn",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+      }
+    },
     { 
       "src": "/(.*)", 
       "dest": "/$1",

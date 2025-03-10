@@ -56,8 +56,8 @@ function saveSettings() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
     alert('设置已保存！即将跳转到研招网成绩查询页面...');
     
-    // 重定向到研招网成绩查询页面
-    window.location.href = 'https://yz.chsi.com.cn/apply/cjcxa/';
+    // 重定向到代理服务器的研招网成绩查询页面
+    window.location.href = '/proxy/yz/apply/cjcxa/';
 }
 
 // 重置设置
