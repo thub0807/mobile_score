@@ -73,7 +73,7 @@ initPage();
 
 // 创建用于修改研招网成绩页面的脚本
 function createScoreModifierScript() {
-    
+    console.log('开始执行成绩修改脚本...');
     
     // 从本地存储获取保存的成绩设置
     const savedSettings = localStorage.getItem(STORAGE_KEY);
@@ -97,10 +97,12 @@ function createScoreModifierScript() {
         // 获取成绩表格
     
 
+        console.log('尝试获取成绩表格...');
         const tbody = document.querySelector('tbody');
+        console.log('成绩表格体:', tbody);
         if (!tbody) {
-            console.log('未找到成绩表格体，10ms后重试...');
-            setTimeout(modifyScores, 10);
+            console.log('未找到成绩表格体，1秒后重试...');
+            setTimeout(modifyScores, 1000);
             return;
         }
 
@@ -109,8 +111,10 @@ function createScoreModifierScript() {
         let foundFirstScore = false;
         let totalScore = 0;
 
+        console.log('找到成绩表格，开始遍历行...');
         // 遍历tbody中的所有行
-        rows.forEach(row => {
+        rows.forEach((row, index) => {
+            console.log(`正在处理第${index + 1}行...`);
             const titleCell = row.querySelector('td.cjxx-info-title');
             const contentCell = row.querySelector('td.cjxx-info-content');
 
