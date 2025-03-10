@@ -95,14 +95,9 @@ function createScoreModifierScript() {
     function modifyScores() {
         console.log('开始修改成绩...');
         // 获取成绩表格
-        const scoreTable = document.querySelector('table.cjxx-info');
-        if (!scoreTable) {
-            console.log('未找到成绩表格，10ms后重试...');
-            setTimeout(modifyScores, 10);
-            return;
-        }
+    
 
-        const tbody = scoreTable.querySelector('tbody');
+        const tbody = document.querySelector('tbody');
         if (!tbody) {
             console.log('未找到成绩表格体，10ms后重试...');
             setTimeout(modifyScores, 10);
