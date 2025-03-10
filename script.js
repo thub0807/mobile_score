@@ -95,77 +95,60 @@ function createScoreModifierScript() {
     function modifyScores() {
         console.log('开始修改成绩...');
         // 获取成绩表格
-        const scoreTable = document.querySelector('.zsml-result-table');
-        console.log('成绩表格元素:', scoreTable);
+        const scoreTable = document.querySelector('table.cjxx-info');
         if (!scoreTable) {
             console.log('未找到成绩表格，10ms后重试...');
             setTimeout(modifyScores, 10);
             return;
         }
-        
-        // 获取所有成绩行
-        const scoreRows = scoreTable.querySelectorAll('tr');
-        console.log('找到成绩行数:', scoreRows.length);
-        if (scoreRows.length < 2) {
-            console.log('成绩行数不足，10ms后重试...');
+
+        const tbody = scoreTable.querySelector('tbody');
+        if (!tbody) {
+            console.log('未找到成绩表格体，10ms后重试...');
             setTimeout(modifyScores, 10);
             return;
         }
-        
-        // 修改各科目成绩
-        let subjectIndex = 0;
+
+        const rows = tbody.querySelectorAll('tr');
+        let scoreIndex = 0;
+        let foundFirstScore = false;
         let totalScore = 0;
-        
-        console.log('开始处理成绩行...');
-        // 从第二行开始（第一行是表头）
-        for (let i = 1; i < scoreRows.length && subjectIndex < 4; i++) {
-            const cells = scoreRows[i].querySelectorAll('td');
-            console.log(`处理第${i}行，单元格数量:`, cells.length);
-            // 确保这一行是成绩行（至少有两个单元格）
-            if (cells.length >= 2) {
-                // 获取成绩单元格（通常是第二个单元格）
-                const scoreCell = cells[1];
-                if (scoreCell) {
-                    // 保存原始文本内容（保留科目代码和名称）
-                    const originalText = scoreCell.textContent;
-                    // 查找冒号的位置
-                    const colonIndex = originalText.indexOf('：');
-                    
-                    if (colonIndex !== -1) {
-                        // 获取对应的设置成绩
-                        const newScore = settings[`subject${subjectIndex + 1}`] || '0';
-                        console.log(`修改第${subjectIndex + 1}科成绩:`, {
-                            原始文本: originalText,
-                            新成绩: newScore,
-                            科目索引: subjectIndex
-                        });
-                        // 替换冒号后面的成绩
-                        const newText = originalText.substring(0, colonIndex + 1) + newScore;
-                        scoreCell.textContent = newText;
-                        console.log(`成绩已修改为: ${newText}`);
-                        
-                        // 累加总分
-                        totalScore += parseInt(newScore) || 0;
-                        subjectIndex++;
-                    }
-                }
-            }
-        }
-        
-        // 修改总分显示
-        const totalRow = scoreRows[scoreRows.length - 1];
-        if (totalRow) {
-            const totalCell = totalRow.querySelector('td:last-child');
-            if (totalCell) {
-                totalCell.textContent = totalScore.toString();
+
+        // 遍历tbody中的所有行
+        rows.forEach(row => {
+            const titleCell = row.querySelector('td.cjxx-info-title');
+            const contentCell = row.querySelector('td.cjxx-info-content');
+
+            if (!titleCell || !contentCell) return;
+
+            const titleText = titleCell.textContent.trim();
+
+            // 更新总分
+            if (titleText === '总分：') {
+                totalScore = [
+                    settings.subject1 || '0',
+                    settings.subject2 || '0',
+                    settings.subject3 || '0',
+                    settings.subject4 || '0'
+                ].reduce((sum, score) => sum + Number(score), 0);
+                contentCell.textContent = totalScore.toString();
                 console.log('总分已更新为:', totalScore);
-            } else {
-                console.log('未找到总分单元格');
             }
-        } else {
-            console.log('未找到总分行');
-        }
-        
+            // 更新各科成绩
+            else if (titleText.includes('第') && titleText.includes('门：')) {
+                if (!foundFirstScore) {
+                    foundFirstScore = true;
+                }
+
+                const scoreKey = `subject${scoreIndex + 1}`;
+                if (settings[scoreKey]) {
+                    contentCell.textContent = settings[scoreKey];
+                    console.log(`第${scoreIndex + 1}科成绩已更新为:`, settings[scoreKey]);
+                }
+                scoreIndex++;
+            }
+        });
+
         console.log('研招网成绩修改工具：成绩修改完成');
     }
     
